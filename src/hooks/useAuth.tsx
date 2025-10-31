@@ -147,33 +147,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (error || !data.user) return { error };
 
-    // Create profile and responder_details for responders
+    // Create responder_details for responders (profile is auto-created by DB trigger)
     if (userData.user_type === 'responder') {
       const userId = data.user.id;
-
-      // Insert into profiles
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          email,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          phone: userData.phone,
-          user_type: 'responder'
-        });
-
-      if (profileError) return { error: profileError };
 
       // Insert into responder_details
       const { error: responderError } = await supabase
         .from('responder_details')
-        .insert({
+        .upsert({
           id: userId,
           responder_type: userData.responder_type,
           badge_id: userData.badge_id,
-          verification_status: 'pending'
-        });
+          is_verified: false
+        }, { onConflict: 'id', ignoreDuplicates: true });
 
       if (responderError) return { error: responderError };
     }
