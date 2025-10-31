@@ -48,26 +48,7 @@ const HospitalAuth = () => {
         const userId = data.user?.id;
         if (!userId) throw new Error("User ID not found after signup");
 
-        // 2️⃣ Insert into profiles table
-        const { error: profilesError } = await supabase
-          .from('profiles')
-          .insert([{
-            id: userId,
-            email,
-            user_type: 'hospital'
-          }]);
-
-        if (profilesError) {
-          toast({
-            title: "Profile Creation Failed",
-            description: profilesError.message,
-            variant: "destructive"
-          });
-          setLoading(false);
-          return;
-        }
-
-        // 3️⃣ Insert into hospital_profiles table
+        // 2️⃣ Insert ONLY into hospital_profiles table (not profiles)
         const { error: hospitalError } = await supabase
           .from('hospital_profiles')
           .insert([{

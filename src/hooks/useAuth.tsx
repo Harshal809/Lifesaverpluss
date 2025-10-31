@@ -54,14 +54,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               let hospitalDetails = null;
               let responderDetails = null;
 
+              // Fetch hospital details - hospitals don't have profiles table entry
+              const { data: hospitalData } = await supabase
+                .from('hospital_profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
+
+              if (hospitalData) {
+                hospitalDetails = hospitalData;
+                // For hospitals, create a minimal profile object
+                if (!profileData) {
+                  if (isMounted) {
+                    setProfile({
+                      id: session.user.id,
+                      user_type: 'hospital',
+                      email: session.user.email,
+                      hospital_details: hospitalDetails,
+                    });
+                    setLoading(false);
+                  }
+                  return;
+                }
+              }
+
               // Fetch related details based on user_type
               if (profileData?.user_type === 'hospital') {
-                const { data } = await supabase
-                  .from('hospital_profiles')
-                  .select('*')
-                  .eq('id', session.user.id)
-                  .maybeSingle();
-                hospitalDetails = data;
+                hospitalDetails = hospitalData;
               }
 
               if (profileData?.user_type === 'responder') {
@@ -126,7 +145,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -134,6 +153,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         emailRedirectTo: `${window.location.origin}/`
       }
     });
+
+    if (error || !data.user) return { error };
+
+    // Create profile and responder_details for responders
+    if (userData.user_type === 'responder') {
+      const userId = data.user.id;
+
+      // Insert into profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          phone: userData.phone,
+          user_type: 'responder'
+        });
+
+      if (profileError) return { error: profileError };
+
+      // Insert into responder_details
+      const { error: responderError } = await supabase
+        .from('responder_details')
+        .insert({
+          id: userId,
+          responder_type: userData.responder_type,
+          badge_id: userData.badge_id,
+          verification_status: 'pending'
+        });
+
+      if (responderError) return { error: responderError };
+    }
+
     return { error };
   };
 
