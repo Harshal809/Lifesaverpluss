@@ -1,73 +1,47 @@
-# Welcome to your Lovable project
+# 🆘 LifeSaver+
 
-## Project info
+LifeSaver+ is a real-time emergency response platform built with **React + TypeScript** and **Supabase**. It enables users to instantly send SOS alerts, automatically notifying nearby hospitals and responders within a 5 km radius.
 
-**URL**: https://lovable.dev/projects/15c1b560-9a7a-4e71-9923-4dc5e7d9f425
+## 🚀 Features
 
-## How can I edit this code?
+- 🔐 **Authentication & Authorization**
+  - Role-based auth for **users**, **responders**, and **hospitals**
+  - Supabase Auth integration
 
-There are several ways of editing your application.
+- 🗺️ **SOS Emergency System**
+  - Users can trigger an SOS alert with live geolocation
+  - Real-time notifications sent to hospitals/responders within 5 km
+  - Hospital dashboard receives filtered emergency requests
 
-**Use Lovable**
+- 📡 **Real-Time Updates**
+  - Live sync of SOS data using Supabase channels
+  - No refresh needed — new alerts appear instantly
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/15c1b560-9a7a-4e71-9923-4dc5e7d9f425) and start prompting.
+- 🏥 **Hospital Dashboard**
+  - See only emergency requests relevant to the logged-in hospital
+  - Mark requests as "Responded" or "Resolved"
+  - Stats for active, in-progress, and resolved emergencies
 
-Changes made via Lovable will be committed automatically to this repo.
+- 👤 **User Dashboard**
+  - Trigger SOS
+  - View response status and track nearby hospitals
 
-**Use your preferred IDE**
+- 📦 **Technology Stack**
+  - **Frontend**: React, TypeScript, Tailwind CSS
+  - **Backend**: Supabase (PostgreSQL, Realtime, Auth)
+  - **Geolocation**: HTML5 Geolocation API
+  - **Routing**: React Router
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🔹 Key Features:
+ 🧭 One-tap SOS Alert – In case of a medical or social emergency, users can send instant SOS alerts with live location.
 
-Follow these steps:
+ 🩺 Smart Medical Assistance – If a user triggers a Medical SOS, the system checks for nearby hospitals within a 5 km radius and notifies them in real time.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+ 🚔 Fallback to Authorities – If no hospital is available nearby, the alert is automatically routed to social authorities like police for urgent intervention.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+ 📍 Responder & Hospital Dashboards – Designed to track, manage, and update emergency requests, with live navigation to the victim’s location.
 
-# Step 3: Install the necessary dependencies.
-npm i
+ 🔄 Real-time Communication – The system uses a connected database and efficient backend APIs to ensure smooth, live updates across all modules.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/15c1b560-9a7a-4e71-9923-4dc5e7d9f425) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+📡 Built with a vision to make emergency response faster, smarter, and more accessible — Lifesaver+ bridges the gap between the victim and responders when every second matters.
