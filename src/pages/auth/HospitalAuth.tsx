@@ -103,7 +103,7 @@ const HospitalAuth = () => {
             .from('hospital_profiles')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
           if (hospital) {
             toast({
