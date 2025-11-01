@@ -379,6 +379,7 @@ import { AlertTriangle, Navigation } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useGeminiAI } from '@/hooks/useGeminiAI';
 import { sendSOSMail } from '@/hooks/mailhook'; // <-- Use mailhook here
 
 const haversineDistance = (
@@ -401,9 +402,11 @@ const haversineDistance = (
 
 const SOSButton = () => {
   const { user } = useAuth();
+  const { enhanceDescription } = useGeminiAI();
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState<GeolocationCoordinates | null>(null);
   const [locationError, setLocationError] = useState<string>('');
+  const [aiEnhancementEnabled, setAiEnhancementEnabled] = useState(true);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -449,7 +452,18 @@ const SOSButton = () => {
       const sorted = distances.sort((a, b) => a.distance - b.distance);
       const nearestHospital = sorted[0];
 
-      // Step 3: Insert SOS request
+      // Step 3: Enhance description with AI if enabled
+      let enhancedDescription = 'Emergency SOS request';
+      if (aiEnhancementEnabled) {
+        try {
+          const aiDescription = await enhanceDescription('Medical emergency at current location');
+          enhancedDescription = aiDescription.substring(0, 200); // Limit length
+        } catch (error) {
+          console.warn('AI enhancement failed, using default description');
+        }
+      }
+
+      // Step 4: Insert SOS request
       const { error: insertError } = await supabase.from('sos_requests').insert({
         user_id: user.id,
         user_name: `${user.user_metadata?.first_name || 'User'} ${user.user_metadata?.last_name || ''}`.trim(),
@@ -457,7 +471,7 @@ const SOSButton = () => {
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
         emergency_type: 'medical',
-        description: 'Emergency SOS request',
+        description: enhancedDescription,
         user_address: 'Current Location',
         status: 'pending',
         assigned_hospital_id: nearestHospital.id,

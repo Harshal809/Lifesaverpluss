@@ -3,9 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import EmergencyContacts from "@/components/EmergencyContacts";
+import { Users, ChevronDown, ChevronUp } from "lucide-react";
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -21,6 +26,7 @@ const UserProfile = ({ isOpen, onClose, onProfileUpdate }: UserProfileProps) => 
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -84,7 +90,7 @@ const UserProfile = ({ isOpen, onClose, onProfileUpdate }: UserProfileProps) => 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Update Profile</DialogTitle>
         </DialogHeader>
@@ -139,6 +145,35 @@ const UserProfile = ({ isOpen, onClose, onProfileUpdate }: UserProfileProps) => 
             <Button onClick={handleSave} disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
             </Button>
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* Emergency Contacts Section with Toggle */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                <Label className="text-base font-semibold">Emergency Contacts</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={showContacts}
+                  onCheckedChange={setShowContacts}
+                />
+                <span className="text-sm text-gray-600">
+                  {showContacts ? "Hide" : "Show"}
+                </span>
+              </div>
+            </div>
+            
+            {showContacts && (
+              <Card className="mt-2 border-blue-200 bg-blue-50/50">
+                <CardContent className="pt-4">
+                  <EmergencyContacts />
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </DialogContent>

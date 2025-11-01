@@ -25,6 +25,8 @@ import { AnonymousReportsManager } from "@/components/AnonymousReportsManager";
 import ResponderProfile from "@/components/ResponderProfile";
 import EmergencyMap from "@/components/r/map";
 import { Separator } from "@/components/ui/separator";
+import AIRouteOptimizer from "@/components/AIRouteOptimizer";
+import AIPredictiveHotspots from "@/components/AIPredictiveHotspots";
 
 const ResponderDashboard = () => {
   const { profile, signOut } = useAuth();
@@ -311,6 +313,27 @@ const ResponderDashboard = () => {
           <TabsContent value="alerts" className="space-y-6">
             <ResponderStatsCards />
 
+            {/* AI Route Optimizer */}
+            {visibleAlerts.length > 1 && currentLocation && (
+              <AIRouteOptimizer
+                alerts={visibleAlerts.map(a => ({
+                  id: a.id,
+                  location_lat: a.location_lat || 0,
+                  location_lng: a.location_lng || 0,
+                  type: a.type,
+                  status: a.status,
+                  description: a.description || undefined,
+                }))}
+                responderLocation={currentLocation}
+                onNavigate={(alertId) => {
+                  const alert = visibleAlerts.find(a => a.id === alertId);
+                  if (alert && alert.location_lat && alert.location_lng) {
+                    window.open(`https://www.google.com/maps?q=${alert.location_lat},${alert.location_lng}`, '_blank');
+                  }
+                }}
+              />
+            )}
+
             <Card className="shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -525,6 +548,17 @@ const ResponderDashboard = () => {
           </TabsContent>
 
           <TabsContent value="map" className="space-y-6">
+            {/* AI Predictive Hotspots */}
+            <AIPredictiveHotspots
+              emergencyHistory={alerts.map(a => ({
+                location_lat: a.location_lat || 0,
+                location_lng: a.location_lng || 0,
+                type: a.type,
+                created_at: a.created_at || new Date().toISOString(),
+              }))}
+              currentLocation={currentLocation}
+            />
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg sm:text-xl">Area Coverage Map</CardTitle>

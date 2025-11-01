@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon, FileText, Sparkles, Contact } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
@@ -23,6 +24,10 @@ import SOSButton from "@/components/r/SOSButton";
 import { sendSOSMail } from "@/hooks/mailhook";
 import EmergencyContacts from "@/components/EmergencyContacts";
 import { useShakeDetection } from "@/hooks/useShakeDetection";
+import MedicalReports from "@/components/MedicalReports";
+import AISymptomChecker from "@/components/AISymptomChecker";
+import AIVoiceEmergency from "@/components/AIVoiceEmergency";
+import AIHealthRiskAnalyzer from "@/components/AIHealthRiskAnalyzer";
 interface HospitalSOSDialogProps {
   userLocation: { lat: number; lng: number } | null;
 }
@@ -33,7 +38,7 @@ const UserDashboard = () => {
   const { contacts, addContact, removeContact } = useEmergencyContacts();
   const { submitReport } = useAnonymousReports();
   const { toast } = useToast();
-
+  
   const [sosCountdown, setSosCountdown] = useState(0);
   const [activeSOS, setActiveSOS] = useState(false);
   const [selectedSOSType, setSelectedSOSType] = useState<'medical' | 'safety' | 'general'>('medical');
@@ -41,6 +46,9 @@ const UserDashboard = () => {
   const [location, setLocation] = useState("Getting location...");
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showMedicalReports, setShowMedicalReports] = useState(false);
+  const [showAISymptomChecker, setShowAISymptomChecker] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
   const [shakeEnabled, setShakeEnabled] = useState(true);
   const { sendHospitalSOS, loading } = useHospitalSOS();
 
@@ -178,11 +186,24 @@ const UserDashboard = () => {
     if (newContact.name && newContact.phone) {
       await addContact(newContact.name, newContact.phone);
       setNewContact({ name: "", phone: "" });
+      // Toast is already handled in the hook
+    } else {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both name and phone number.",
+        variant: "destructive",
+      });
     }
   };
 
-  const callContact = (phone: string) => {
+  const handleCallContact = (phone: string) => {
+    if (!phone) return;
     window.open(`tel:${phone}`);
+  };
+
+  const handleRemoveContact = async (id: string) => {
+    await removeContact(id);
+    // Toast is already handled in the hook
   };
 
   const call911 = () => {
@@ -222,16 +243,45 @@ const UserDashboard = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowProfile(true)}
               >
-                <User className="h-4 w-4 mr-2" />
-                Profile
+                <User className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Profile</span>
               </Button>
-  {/* const [showProfile, setShowProfile] = useState(false); */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMedicalReports(true)}
+                className="bg-blue-50 border-blue-200 hover:bg-blue-100"
+              >
+                <FileText className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Medical</span>
+                <span className="sm:hidden">Med</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAISymptomChecker(true)}
+                className="bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-700"
+              >
+                <Sparkles className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">AI Check</span>
+                <span className="sm:hidden">AI</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowContacts(true)}
+                className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+              >
+                <Users className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Contacts</span>
+                <span className="sm:hidden">Con</span>
+              </Button>
               <UserProfile
                 isOpen={showProfile}
                 onClose={() => setShowProfile(false)}
@@ -239,8 +289,122 @@ const UserDashboard = () => {
                   setShowProfile(false);
                 }}
               />
+              <MedicalReports
+                isOpen={showMedicalReports}
+                onClose={() => setShowMedicalReports(false)}
+              />
+              <AISymptomChecker
+                isOpen={showAISymptomChecker}
+                onClose={() => setShowAISymptomChecker(false)}
+              />
+              {/* Contacts Dialog */}
+              <Dialog open={showContacts} onOpenChange={setShowContacts}>
+                <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Emergency Contacts
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    {/* Add Contact Form */}
+                    <Card className="border-green-200 bg-green-50/50">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg">Add New Contact</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <Label htmlFor="contactName">Name</Label>
+                            <Input
+                              id="contactName"
+                              value={newContact.name}
+                              onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                              placeholder="Contact name"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="contactPhone">Phone</Label>
+                            <Input
+                              id="contactPhone"
+                              value={newContact.phone}
+                              onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                              placeholder="+91-XXXXXXXXXX"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div className="flex items-end">
+                            <Button 
+                              onClick={handleAddContact} 
+                              className="w-full bg-green-600 hover:bg-green-700"
+                              disabled={!newContact.name || !newContact.phone}
+                            >
+                              Add Contact
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-              <Button variant="outline" onClick={signOut}>
+                    {/* Contacts List */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Your Emergency Contacts ({contacts.length})</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {contacts.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500">
+                            <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                            <p>No emergency contacts yet</p>
+                            <p className="text-sm mt-1">Add a contact above to get started</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {contacts.map((contact) => (
+                              <div
+                                key={contact.id}
+                                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-semibold text-gray-900">{contact.name}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <Phone className="h-4 w-4 text-gray-500" />
+                                    <a 
+                                      href={`tel:${contact.phone}`}
+                                      className="text-blue-600 hover:text-blue-800 text-sm"
+                                    >
+                                      {contact.phone}
+                                    </a>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleCallContact(contact.phone)}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    <Phone className="h-4 w-4 mr-1" />
+                                    Call
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleRemoveContact(contact.id)}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Button variant="outline" size="sm" onClick={signOut}>
                 Logout
               </Button>
             </div>
@@ -265,7 +429,11 @@ const UserDashboard = () => {
         <Tabs defaultValue="emergency" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="emergency">Emergency</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts</TabsTrigger>
+            <TabsTrigger value="ai-features">
+              <Sparkles className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">AI Features</span>
+              <span className="sm:hidden">AI</span>
+            </TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
            
@@ -430,8 +598,94 @@ const UserDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="contacts" className="space-y-6">
-           <EmergencyContacts />
+          {/* AI Features Tab - All AI Components */}
+          <TabsContent value="ai-features" className="space-y-6">
+            <div className="space-y-6">
+              {/* AI Voice Emergency */}
+              <AIVoiceEmergency 
+                onEmergencyDetected={(type, description) => {
+                  setSelectedSOSType(type);
+                  handleSOSClick(type);
+                  toast({
+                    title: '🚨 Emergency Detected via Voice!',
+                    description: `AI detected ${type} emergency. SOS activated.`,
+                    variant: 'destructive',
+                  });
+                }}
+              />
+
+              {/* AI Symptom Checker - Card Format */}
+              <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-600" />
+                    AI Symptom Checker
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Describe your symptoms for AI-powered analysis and diagnosis suggestions
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={() => setShowAISymptomChecker(true)}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Open Symptom Checker
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* AI Health Risk Analyzer */}
+              <AIHealthRiskAnalyzer />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reports" className="space-y-6">
+            {/* Medical Reports Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  Medical Reports Management
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage your medical history and reports
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() => setShowMedicalReports(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Manage Medical Reports
+                </Button>
+              </CardContent>
+            </Card>
+            <MedicalReports
+              isOpen={showMedicalReports}
+              onClose={() => setShowMedicalReports(false)}
+            />
+
+            {/* Anonymous Reports */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Anonymous Safety Reports</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AnonymousReportForm />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Report History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AnonymousReportsHistory />
+              </CardContent>
+            </Card>
           </TabsContent>
        
           <TabsContent value="history" className="space-y-6">
