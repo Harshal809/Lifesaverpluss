@@ -14,7 +14,7 @@ const UserAuth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp, signIn, user, profile } = useAuth();
+  const { signUp, signIn, user, profile, loading: authLoading } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -26,15 +26,13 @@ const UserAuth = () => {
   });
 
   useEffect(() => {
-    if (user && profile) {
-      if (profile.user_type === 'user') {
-        navigate("/dashboard/user");
-      } else if (profile.user_type === 'responder') {
-        navigate("/dashboard/responder");
-      }
-      // console.log(user, profile)
+    // Only redirect if we have user, profile is loaded (not null and auth not loading)
+    if (user && profile && !authLoading && profile.user_type === 'user') {
+      navigate("/dashboard/user");
+    } else if (user && profile && !authLoading && profile.user_type === 'responder') {
+      navigate("/dashboard/responder");
     }
-  }, [user, profile, navigate]);
+  }, [user, profile, navigate, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +56,10 @@ const UserAuth = () => {
             description: error.message,
             variant: "destructive"
           });
+          setLoading(false);
+          return;
         }
+        // Profile will load via auth state change, useEffect will handle redirect
       } else {
         const { error } = await signUp(formData.email, formData.password, {
           first_name: formData.firstName,

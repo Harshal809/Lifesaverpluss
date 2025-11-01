@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SOSButton from "@/components/r/SOSButton";
 import { sendSOSMail } from "@/hooks/mailhook";
 import EmergencyContacts from "@/components/EmergencyContacts";
+import { useShakeDetection } from "@/hooks/useShakeDetection";
 interface HospitalSOSDialogProps {
   userLocation: { lat: number; lng: number } | null;
 }
@@ -40,7 +41,8 @@ const UserDashboard = () => {
   const [location, setLocation] = useState("Getting location...");
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
-const { sendHospitalSOS, loading } = useHospitalSOS();
+  const [shakeEnabled, setShakeEnabled] = useState(true);
+  const { sendHospitalSOS, loading } = useHospitalSOS();
 
   useEffect(() => {
     // Get user location
@@ -61,74 +63,7 @@ const { sendHospitalSOS, loading } = useHospitalSOS();
     }
   }, []);
 
-  useEffect(() => {
-    if (sosCountdown > 0) {
-      const timer = setTimeout(() => setSosCountdown(sosCountdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (sosCountdown === 0 && activeSOS) {
-      handleSOSActivated();
-    }
-  }, [sosCountdown, activeSOS]);
-
-
-
-
-
-
-  // Handle SOS button click
-  // const handleSOSClick = async (type: "medical" | "safety" | "general") => {
-  //   setSelectedSOSType(type); // Store the selected type
-  //   setSosCountdown(3);
-  //   setActiveSOS(true);
-
-  //   toast({
-  //     title: "SOS Alert Starting",
-  //     description: `${type.toUpperCase()} emergency alert in 3 seconds. Tap cancel to stop.`,
-  //   });
-
-  //   // if (type === "medical") {
-  //   //   await handleAutoSendSOS(); // call directly
-  //   // }
-  // };
-
-  const handleSOSClick = async (type: "medical" | "safety" | "general") => {
-  setSelectedSOSType(type);
-  setSosCountdown(3);
-  setActiveSOS(true);
-
-  toast({
-    title: "SOS Alert Starting",
-    description: `${type.toUpperCase()} emergency alert in 3 seconds. Tap cancel to stop.`,
-  });
-
-  // Optional delay logic ke baad call kar sakte ho
-  // ya direct test ke liye yaha bhi call karo:
-
-  try {
-    await sendSOSMail(type);
-    toast({
-      title: `${type.toUpperCase()} SOS Sent`,
-      description: "Email has been successfully sent!",
-    });
-  } catch (error) {
-    toast({
-      title: "Failed to send SOS",
-      description: "Please check your connection or location settings.",
-    });
-  }
-};
-
-  const handleSOSCancel = () => {
-    setSosCountdown(0);
-    setActiveSOS(false);
-    setSelectedSOSType('medical'); // Reset to default
-    toast({
-      title: "SOS Cancelled",
-      description: "Emergency alert has been cancelled.",
-    });
-  };
-
-  const handleSOSActivated = async () => {
+  const handleSOSActivated = useCallback(async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -154,6 +89,89 @@ const { sendHospitalSOS, loading } = useHospitalSOS();
         }
       );
     }
+  }, [selectedSOSType, location, createAlert, toast]);
+
+  useEffect(() => {
+    if (sosCountdown > 0) {
+      const timer = setTimeout(() => setSosCountdown(sosCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (sosCountdown === 0 && activeSOS) {
+      handleSOSActivated();
+    }
+  }, [sosCountdown, activeSOS, handleSOSActivated]);
+
+
+
+
+
+
+  // Handle SOS button click
+  // const handleSOSClick = async (type: "medical" | "safety" | "general") => {
+  //   setSelectedSOSType(type); // Store the selected type
+  //   setSosCountdown(3);
+  //   setActiveSOS(true);
+
+  //   toast({
+  //     title: "SOS Alert Starting",
+  //     description: `${type.toUpperCase()} emergency alert in 3 seconds. Tap cancel to stop.`,
+  //   });
+
+  //   // if (type === "medical") {
+  //   //   await handleAutoSendSOS(); // call directly
+  //   // }
+  // };
+
+  const handleSOSClick = useCallback(async (type: "medical" | "safety" | "general") => {
+    setSelectedSOSType(type);
+    setSosCountdown(3);
+    setActiveSOS(true);
+
+    toast({
+      title: "SOS Alert Starting",
+      description: `${type.toUpperCase()} emergency alert in 3 seconds. Tap cancel to stop.`,
+    });
+
+    try {
+      await sendSOSMail(type);
+      toast({
+        title: `${type.toUpperCase()} SOS Sent`,
+        description: "Email has been successfully sent!",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to send SOS",
+        description: "Please check your connection or location settings.",
+      });
+    }
+  }, [toast]);
+
+  // Shake detection for SOS trigger
+  const handleShake = useCallback(() => {
+    if (!activeSOS && sosCountdown === 0) {
+      toast({
+        title: "Shake Detected!",
+        description: "Triggering emergency SOS...",
+        variant: "destructive"
+      });
+      handleSOSClick("medical"); // Default to medical emergency on shake
+    }
+  }, [activeSOS, sosCountdown, toast, handleSOSClick]);
+
+  const { isSupported, permissionStatus, requestPermission } = useShakeDetection({
+    threshold: 15, // m/s² acceleration threshold
+    debounceTime: 2000, // 2 seconds between shake triggers
+    onShake: handleShake,
+    enabled: shakeEnabled,
+  });
+
+  const handleSOSCancel = () => {
+    setSosCountdown(0);
+    setActiveSOS(false);
+    setSelectedSOSType('medical'); // Reset to default
+    toast({
+      title: "SOS Cancelled",
+      description: "Emergency alert has been cancelled.",
+    });
   };
 
   const handleAddContact = async () => {
@@ -256,6 +274,45 @@ const { sendHospitalSOS, loading } = useHospitalSOS();
           
 
           <TabsContent value="emergency" className="space-y-6">
+            {/* Shake Detection Status */}
+            {isSupported && (
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-blue-900">Shake to Trigger SOS</h3>
+                      <p className="text-sm text-blue-700">
+                        {permissionStatus === 'granted' 
+                          ? 'Shake detection is active. Shake your device to trigger emergency SOS.'
+                          : permissionStatus === 'denied'
+                          ? 'Motion permission denied. Click "Enable" to grant access.'
+                          : 'Click "Enable" to allow shake detection for emergency SOS.'}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {permissionStatus !== 'granted' && (
+                        <Button 
+                          onClick={requestPermission}
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-600 text-blue-600"
+                        >
+                          Enable Shake Detection
+                        </Button>
+                      )}
+                      <Button
+                        onClick={() => setShakeEnabled(!shakeEnabled)}
+                        size="sm"
+                        variant={shakeEnabled ? "default" : "outline"}
+                      >
+                        {shakeEnabled ? "Disable" : "Enable"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Emergency Actions */}
  
   <SOSButton />
