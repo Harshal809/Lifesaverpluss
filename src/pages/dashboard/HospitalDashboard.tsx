@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Clock, User, AlertTriangle, History, Building2, Phone, Navigation } from 'lucide-react';
+import { MapPin, Clock, User, AlertTriangle, History, Building2, Phone, Navigation, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -498,6 +498,23 @@ const HospitalDashboard: React.FC = () => {
                 className="sm:hidden"
               >
                 <User className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/hospital/bloodconnect')}
+                className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700 hidden sm:flex"
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                Blood Connect
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/hospital/bloodconnect')}
+                className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700 sm:hidden"
+              >
+                <Heart className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={signOut}>
                 <span className="hidden sm:inline">Logout</span>

@@ -15,6 +15,8 @@ import ResponderDashboard from "./pages/dashboard/ResponderDashboard";
 import HospitalDashboard from "./pages/dashboard/HospitalDashboard";
 import NotFound from "./pages/NotFound";
 import ResolvedHistory from "./components/ResolvedHistory";
+import BloodConnect from "./pages/BloodConnect";
+import HospitalBloodConnect from "./pages/HospitalBloodConnect";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredUserType="user">
                   <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/user/bloodconnect"
+              element={
+                <ProtectedRoute requiredUserType="user">
+                  <BloodConnect />
                 </ProtectedRoute>
               }
             />
@@ -68,6 +78,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredUserType="hospital">
                   <ResolvedHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/hospital/bloodconnect"
+              element={
+                <ProtectedRoute>
+                  <HospitalBloodConnect />
                 </ProtectedRoute>
               }
             />

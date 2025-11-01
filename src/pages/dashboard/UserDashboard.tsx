@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon, FileText, Sparkles, Contact } from "lucide-react";
+import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon, FileText, Sparkles, Contact, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
@@ -38,6 +39,7 @@ const UserDashboard = () => {
   const { contacts, addContact, removeContact } = useEmergencyContacts();
   const { submitReport } = useAnonymousReports();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [sosCountdown, setSosCountdown] = useState(0);
   const [activeSOS, setActiveSOS] = useState(false);
@@ -281,6 +283,16 @@ const UserDashboard = () => {
                 <Users className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Contacts</span>
                 <span className="sm:hidden">Con</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/user/bloodconnect')}
+                className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
+              >
+                <Heart className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Blood Connect</span>
+                <span className="sm:hidden">Blood</span>
               </Button>
               <UserProfile
                 isOpen={showProfile}
