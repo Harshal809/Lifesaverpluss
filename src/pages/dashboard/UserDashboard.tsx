@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon, FileText, Sparkles, Contact, Heart } from "lucide-react";
+import { Shield, Ambulance, Phone, MapPin, Users, History, Clock, Flag, User, MoreHorizontalIcon, FileText, Sparkles, Contact, Heart, MessageCircle, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
@@ -30,6 +30,7 @@ import AISymptomChecker from "@/components/AISymptomChecker";
 import AIVoiceEmergency from "@/components/AIVoiceEmergency";
 import AIHealthRiskAnalyzer from "@/components/AIHealthRiskAnalyzer";
 import BloodConnect from "@/pages/BloodConnect";
+import HospitalBloodRequestsList from "@/components/HospitalBloodRequestsList";
 
 interface HospitalSOSDialogProps {
   userLocation: { lat: number; lng: number } | null;
@@ -289,22 +290,22 @@ const UserDashboard = () => {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => navigate('/dashboard/user/bloodconnect/chat')}
+                className="bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700"
+              >
+                <MessageCircle className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Chat</span>
+                <span className="sm:hidden">Chat</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowContacts(true)}
                 className="bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
               >
                 <Users className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Contacts</span>
                 <span className="sm:hidden">Con</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/dashboard/user/bloodconnect')}
-                className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
-              >
-                <Heart className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Blood Connect</span>
-                <span className="sm:hidden">Blood</span>
               </Button>
               <UserProfile
                 isOpen={showProfile}
@@ -451,12 +452,17 @@ const UserDashboard = () => {
         )}
 
         <Tabs defaultValue="emergency" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="emergency">Emergency</TabsTrigger>
             <TabsTrigger value="ai-features">
               <Sparkles className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">AI Features</span>
               <span className="sm:hidden">AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="hospital-requests">
+              <Building2 className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Hospital Requests</span>
+              <span className="sm:hidden">Hospitals</span>
             </TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
@@ -754,6 +760,20 @@ const UserDashboard = () => {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="hospital-requests" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                  Hospital Blood Requests
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <HospitalBloodRequestsList />
               </CardContent>
             </Card>
           </TabsContent>

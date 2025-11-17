@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, MapPin, Phone, Calendar, User, Search, Filter } from 'lucide-react';
+import { Heart, MapPin, Phone, Calendar, User, Search, Filter, MessageCircle } from 'lucide-react';
 import { useBloodDonor } from '@/hooks/useBloodDonor';
 
 interface BloodDonor {
@@ -33,6 +34,7 @@ interface BloodDonorListProps {
 
 const BloodDonorList = ({ bloodGroupFilter, onDonorSelect }: BloodDonorListProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { isDonor, donorProfile } = useBloodDonor();
   const { toast } = useToast();
   const [donors, setDonors] = useState<BloodDonor[]>([]);
@@ -121,6 +123,7 @@ const BloodDonorList = ({ bloodGroupFilter, onDonorSelect }: BloodDonorListProps
   };
 
   return (
+    <>
     <Card>
       <CardHeader>
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -248,15 +251,22 @@ const BloodDonorList = ({ bloodGroupFilter, onDonorSelect }: BloodDonorListProps
                     </div>
 
                     <div className="flex gap-2">
-                      {onDonorSelect && (
-                        <Button
-                          size="sm"
-                          onClick={() => onDonorSelect(donor)}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          Contact
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          // Navigate to chat page with donor info
+                          const path = window.location.pathname;
+                          if (path.includes('/hospital/')) {
+                            navigate(`/dashboard/hospital/bloodconnect/chat?donorId=${donor.user_id}&donorName=${encodeURIComponent(name)}`);
+                          } else {
+                            navigate(`/dashboard/user/bloodconnect/chat?donorId=${donor.user_id}&donorName=${encodeURIComponent(name)}`);
+                          }
+                        }}
+                        className="bg-primary hover:bg-primary/90 gap-2"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        Chat
+                      </Button>
                       {donor.profiles?.phone && (
                         <Button
                           size="sm"
@@ -275,6 +285,7 @@ const BloodDonorList = ({ bloodGroupFilter, onDonorSelect }: BloodDonorListProps
         )}
       </CardContent>
     </Card>
+    </>
   );
 };
 

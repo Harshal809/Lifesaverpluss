@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import ResolvedHistory from "./components/ResolvedHistory";
 import BloodConnect from "./pages/BloodConnect";
 import HospitalBloodConnect from "./pages/HospitalBloodConnect";
+import BloodChatPage from "./pages/BloodChatPage";
+import HospitalDetail from "./pages/HospitalDetail";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,30 @@ const App = () => (
               element={
                 <ProtectedRoute requiredUserType="user">
                   <BloodConnect />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/user/bloodconnect/chat"
+              element={
+                <ProtectedRoute>
+                  <BloodChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/user/bloodconnect/hospitals/:id"
+              element={
+                <ProtectedRoute requiredUserType="user">
+                  <HospitalDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/hospital/bloodconnect/chat"
+              element={
+                <ProtectedRoute>
+                  <BloodChatPage />
                 </ProtectedRoute>
               }
             />

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Clock, User, AlertTriangle, History, Building2, Phone, Navigation, Heart } from 'lucide-react';
+import { MapPin, Clock, User, AlertTriangle, History, Building2, Phone, Navigation, Heart, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -515,6 +515,23 @@ const HospitalDashboard: React.FC = () => {
                 className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700 sm:hidden"
               >
                 <Heart className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/hospital/bloodconnect/chat')}
+                className="bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700 hidden sm:flex"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Chat
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/hospital/bloodconnect/chat')}
+                className="bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700 sm:hidden"
+              >
+                <MessageCircle className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={signOut}>
                 <span className="hidden sm:inline">Logout</span>

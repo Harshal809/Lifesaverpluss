@@ -37,10 +37,17 @@ const BloodRequestChat = ({ requestId, onClose }: BloodRequestChatProps) => {
   const handleSend = async () => {
     if (!messageText.trim() || !user || !currentRequest) return;
 
-    // Determine receiver (opposite of requester)
-    const receiverId = currentRequest.requester_id === user.id 
-      ? currentRequest.requester_id // This should be the donor's ID in real scenario
-      : currentRequest.requester_id;
+    // Determine receiver - if current user is requester, send to first message sender (donor)
+    // Otherwise, send to requester
+    let receiverId: string;
+    if (currentRequest.requester_id === user.id) {
+      // Current user is requester, find a donor from messages
+      const donorMessage = messages.find(m => m.sender_id !== user.id);
+      receiverId = donorMessage ? donorMessage.sender_id : currentRequest.requester_id;
+    } else {
+      // Current user is donor, send to requester
+      receiverId = currentRequest.requester_id;
+    }
 
     setSending(true);
     await sendMessage(receiverId, messageText);
@@ -50,11 +57,15 @@ const BloodRequestChat = ({ requestId, onClose }: BloodRequestChatProps) => {
 
   const getReceiverId = () => {
     if (!currentRequest || !user) return null;
-    // In a real scenario, you'd get the other participant's ID
-    // For now, we'll use the requester_id as the other party
-    return currentRequest.requester_id !== user.id 
-      ? currentRequest.requester_id 
-      : null; // Need to get donor ID from request
+    
+    // If current user is requester, get receiver from existing messages
+    if (currentRequest.requester_id === user.id) {
+      const donorMessage = messages.find(m => m.sender_id !== user.id);
+      return donorMessage ? donorMessage.sender_id : null;
+    }
+    
+    // Current user is donor, send to requester
+    return currentRequest.requester_id;
   };
 
   return (

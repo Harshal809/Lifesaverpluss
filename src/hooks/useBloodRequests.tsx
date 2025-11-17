@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -46,11 +46,21 @@ export const useBloodRequests = (filters?: {
   const [requests, setRequests] = useState<BloodRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRequests();
-  }, [user, filters]);
+  // Memoize filters to prevent unnecessary re-renders
+  const filtersKey = useMemo(() => {
+    return JSON.stringify({
+      status: filters?.status?.slice().sort() || [],
+      blood_group: filters?.blood_group || '',
+      requester_type: filters?.requester_type || '',
+    });
+  }, [filters?.status, filters?.blood_group, filters?.requester_type]);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       let query = (supabase as any)
@@ -96,7 +106,12 @@ export const useBloodRequests = (filters?: {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, filtersKey]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [user?.id, filtersKey, fetchRequests]);
 
   const createRequest = async (requestData: {
     blood_group: string;
@@ -147,7 +162,10 @@ export const useBloodRequests = (filters?: {
         description: 'Blood request created successfully',
       });
 
-      fetchRequests();
+      // Refetch requests after a short delay to ensure data is available
+      setTimeout(() => {
+        fetchRequests();
+      }, 500);
       return { data, error: null };
     } catch (error: any) {
       console.error('Error creating request:', error);
@@ -176,7 +194,10 @@ export const useBloodRequests = (filters?: {
         description: 'Request updated successfully',
       });
 
-      fetchRequests();
+      // Refetch requests after a short delay
+      setTimeout(() => {
+        fetchRequests();
+      }, 300);
       return { data, error: null };
     } catch (error: any) {
       console.error('Error updating request:', error);

@@ -68,8 +68,11 @@ const BloodRequestForm = ({ onSuccess }: BloodRequestFormProps) => {
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + parseInt(formData.expiry_hours));
 
+    // Extract only the fields that exist in the database schema
+    const { expiry_hours, ...requestData } = formData;
+
     const result = await createRequest({
-      ...formData,
+      ...requestData,
       patient_age: formData.patient_age ? parseInt(formData.patient_age) : undefined,
       location_lat: formData.location_lat || undefined,
       location_lng: formData.location_lng || undefined,

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useBloodRequests } from '@/hooks/useBloodRequests';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Droplet, MapPin, Phone, Clock, AlertTriangle, User } from 'lucide-react';
-import BloodRequestChat from './BloodRequestChat';
+import { Droplet, MapPin, Phone, Clock, AlertTriangle, User, MessageCircle } from 'lucide-react';
 
 interface BloodRequestListProps {
   showMyRequests?: boolean;
@@ -17,11 +17,15 @@ interface BloodRequestListProps {
 
 const BloodRequestList = ({ showMyRequests = false, onRequestSelect }: BloodRequestListProps) => {
   const { user } = useAuth();
-  const { requests, loading, cancelRequest } = useBloodRequests({
-    status: ['active', 'partially_fulfilled'],
-  });
+  const navigate = useNavigate();
+  
+  // Memoize filters to prevent infinite loop
+  const filters = useMemo(() => ({
+    status: ['active', 'partially_fulfilled'] as const,
+  }), []);
+  
+  const { requests, loading, cancelRequest } = useBloodRequests(filters);
   const { toast } = useToast();
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [filterBloodGroup, setFilterBloodGroup] = useState('all');
   const [filterUrgency, setFilterUrgency] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,9 +71,12 @@ const BloodRequestList = ({ showMyRequests = false, onRequestSelect }: BloodRequ
   };
 
   const handleChatClick = (requestId: string) => {
-    setSelectedRequestId(requestId);
-    if (onRequestSelect) {
-      onRequestSelect(requestId);
+    // Navigate to chat page with requestId based on current path
+    const path = window.location.pathname;
+    if (path.includes('/hospital/')) {
+      navigate(`/dashboard/hospital/bloodconnect/chat?requestId=${requestId}`);
+    } else {
+      navigate(`/dashboard/user/bloodconnect/chat?requestId=${requestId}`);
     }
   };
 
@@ -247,9 +254,21 @@ const BloodRequestList = ({ showMyRequests = false, onRequestSelect }: BloodRequ
                         <Button
                           size="sm"
                           onClick={() => handleChatClick(request.id)}
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="bg-primary hover:bg-primary/90 gap-2"
                         >
-                          Chat with Requester
+                          <MessageCircle className="h-4 w-4" />
+                          Chat
+                        </Button>
+                      )}
+                      {showMyRequests && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleChatClick(request.id)}
+                          variant="outline"
+                          className="gap-2"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          Chat
                         </Button>
                       )}
                       {request.contact_phone && (
@@ -279,14 +298,6 @@ const BloodRequestList = ({ showMyRequests = false, onRequestSelect }: BloodRequ
           )}
         </CardContent>
       </Card>
-
-      {/* Chat Dialog */}
-      {selectedRequestId && (
-        <BloodRequestChat
-          requestId={selectedRequestId}
-          onClose={() => setSelectedRequestId(null)}
-        />
-      )}
     </div>
   );
 };

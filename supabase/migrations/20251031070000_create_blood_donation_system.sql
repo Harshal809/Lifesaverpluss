@@ -33,6 +33,8 @@ CREATE INDEX IF NOT EXISTS idx_blood_donors_user_id ON public.blood_donors(user_
 CREATE INDEX IF NOT EXISTS idx_blood_donors_blood_group ON public.blood_donors(blood_group);
 CREATE INDEX IF NOT EXISTS idx_blood_donors_is_available ON public.blood_donors(is_available);
 CREATE INDEX IF NOT EXISTS idx_blood_donors_next_available_date ON public.blood_donors(next_available_date);
+-- Composite index for location-based queries (finding nearby available donors)
+CREATE INDEX IF NOT EXISTS idx_blood_donors_location ON public.blood_donors(location_lat, location_lng) WHERE is_available = true;
 
 -- =====================================================
 -- 2. Blood Requests Table - Users/Hospitals who need blood
@@ -74,6 +76,8 @@ CREATE INDEX IF NOT EXISTS idx_blood_requests_blood_group ON public.blood_reques
 CREATE INDEX IF NOT EXISTS idx_blood_requests_status ON public.blood_requests(status);
 CREATE INDEX IF NOT EXISTS idx_blood_requests_urgency ON public.blood_requests(urgency_level);
 CREATE INDEX IF NOT EXISTS idx_blood_requests_created_at ON public.blood_requests(created_at DESC);
+-- Composite index for active requests by blood group and location
+CREATE INDEX IF NOT EXISTS idx_blood_requests_active_location ON public.blood_requests(blood_group, location_lat, location_lng) WHERE status IN ('active', 'partially_fulfilled');
 
 -- =====================================================
 -- 3. Blood Donations Table - Track actual donations
@@ -626,3 +630,14 @@ BEGIN
     AND expiry_date < now();
 END;
 $$ LANGUAGE plpgsql;
+
+-- =====================================================
+-- REALTIME SUPPORT
+-- =====================================================
+
+-- Enable realtime for blood-related tables
+ALTER PUBLICATION supabase_realtime ADD TABLE public.blood_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.blood_chat;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.blood_donor_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.hospital_blood_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.hospital_blood_inventory;
