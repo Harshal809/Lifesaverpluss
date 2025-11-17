@@ -70,7 +70,7 @@ const MedicalReports = ({ isOpen, onClose }: MedicalReportsProps) => {
     
     setFetching(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('medical_reports')
         .select('*')
         .eq('user_id', user.id)

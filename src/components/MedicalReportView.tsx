@@ -50,7 +50,7 @@ const MedicalReportView = ({ userId, userName }: MedicalReportViewProps) => {
   const fetchMedicalReport = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('medical_reports')
         .select('*')
         .eq('user_id', userId)

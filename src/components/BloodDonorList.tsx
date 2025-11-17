@@ -48,7 +48,7 @@ const BloodDonorList = ({ bloodGroupFilter, onDonorSelect }: BloodDonorListProps
   const fetchDonors = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      let query = (supabase as any)
         .from('blood_donors')
         .select(`
           *,

@@ -53,7 +53,7 @@ export const useBloodRequests = (filters?: {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      let query = (supabase as any)
         .from('blood_requests')
         .select(`
           *,
@@ -128,7 +128,7 @@ export const useBloodRequests = (filters?: {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error} = await (supabase as any)
         .from('blood_requests')
         .insert([
           {
@@ -162,7 +162,7 @@ export const useBloodRequests = (filters?: {
 
   const updateRequest = async (requestId: string, updates: Partial<BloodRequest>) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blood_requests')
         .update(updates)
         .eq('id', requestId)

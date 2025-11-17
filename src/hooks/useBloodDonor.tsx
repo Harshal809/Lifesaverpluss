@@ -68,7 +68,7 @@ export const useBloodDonor = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blood_donors')
         .select('*')
         .eq('user_id', user.id)
@@ -116,7 +116,7 @@ export const useBloodDonor = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blood_donors')
         .insert([
           {
@@ -160,7 +160,7 @@ export const useBloodDonor = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blood_donors')
         .update(updates)
         .eq('user_id', user.id)
