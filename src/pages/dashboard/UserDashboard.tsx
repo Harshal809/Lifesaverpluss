@@ -29,6 +29,8 @@ import MedicalReports from "@/components/MedicalReports";
 import AISymptomChecker from "@/components/AISymptomChecker";
 import AIVoiceEmergency from "@/components/AIVoiceEmergency";
 import AIHealthRiskAnalyzer from "@/components/AIHealthRiskAnalyzer";
+import BloodConnect from "@/pages/BloodConnect";
+
 interface HospitalSOSDialogProps {
   userLocation: { lat: number; lng: number } | null;
 }
@@ -273,6 +275,16 @@ const UserDashboard = () => {
                 <Sparkles className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">AI Check</span>
                 <span className="sm:hidden">AI</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard/user/bloodconnect')}
+                className="bg-red-50 border-red-200 hover:bg-red-100 text-red-700"
+              >
+                <Heart className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Blood Connect</span>
+                <span className="sm:hidden">Blood</span>
               </Button>
               <Button
                 variant="outline"
