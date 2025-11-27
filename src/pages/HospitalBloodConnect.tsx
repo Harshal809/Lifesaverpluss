@@ -11,10 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Building2, Droplet, Plus, Package, AlertTriangle, CheckCircle2, Clock, MessageCircle, Users, Inbox, X, Heart, TrendingUp, User, Phone, Mail, Eye } from 'lucide-react';
-import BloodRequestList from '@/components/BloodRequestList';
-import BloodDonorList from '@/components/BloodDonorList';
-import HospitalRequestsManager from '@/components/HospitalRequestsManager';
+import { Plus, Package, AlertTriangle, CheckCircle2, Clock, MessageCircle, Users, Inbox, X, Heart, TrendingUp, Eye, Droplet } from 'lucide-react';
+import { BloodRequestList, BloodDonorList } from '@/components/user/bloodconnect';
+import { HospitalRequestsManager, HospitalBloodConnectHeader, BloodInventoryStatsCards, UserDetailsDialog } from '@/components/hospital/bloodconnect';
 
 interface BloodInventory {
   id: string;
@@ -289,115 +288,12 @@ const HospitalBloodConnect = () => {
     }
   };
 
-  const getInventoryStats = () => {
-    const total = inventory.reduce((sum, item) => sum + item.units_available, 0);
-    const reserved = inventory.reduce((sum, item) => sum + item.units_reserved, 0);
-    const available = total - reserved;
-    const lowStock = inventory.filter(item => item.units_available < 10).length;
-
-    return { total, reserved, available, lowStock };
-  };
-
-  const stats = getInventoryStats();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-background to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="relative">
-                  <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
-                  <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-1.5">
-                    <Droplet className="h-4 w-4 text-white" fill="currentColor" />
-                  </div>
-                </div>
-                <span>Hospital Blood Management</span>
-              </h1>
-              <p className="text-sm text-muted-foreground mt-2">
-                Efficiently manage your blood bank inventory and coordinate with donors
-              </p>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => navigate('/dashboard/hospital/bloodconnect/chat')}
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
-                size="sm"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Messages</span>
-                <span className="sm:hidden">Chat</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-blue-100 font-medium mb-1">Total Units</p>
-                  <p className="text-3xl font-bold">{stats.total}</p>
-                  <p className="text-xs text-blue-100 mt-1">All blood groups</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
-                  <Package className="h-8 w-8" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-100 font-medium mb-1">Available</p>
-                  <p className="text-3xl font-bold">{stats.available}</p>
-                  <p className="text-xs text-green-100 mt-1">Ready to use</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
-                  <CheckCircle2 className="h-8 w-8" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white border-none shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-amber-100 font-medium mb-1">Reserved</p>
-                  <p className="text-3xl font-bold">{stats.reserved}</p>
-                  <p className="text-xs text-amber-100 mt-1">Pending requests</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
-                  <Clock className="h-8 w-8" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-red-500 to-rose-600 text-white border-none shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-red-100 font-medium mb-1">Low Stock</p>
-                  <p className="text-3xl font-bold">{stats.lowStock}</p>
-                  <p className="text-xs text-red-100 mt-1">Needs attention</p>
-                </div>
-                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
-                  <AlertTriangle className="h-8 w-8" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <HospitalBloodConnectHeader />
+        <BloodInventoryStatsCards inventory={inventory} />
 
         {/* Main Tabs */}
         <Card className="border-none shadow-xl bg-card/95 backdrop-blur">
@@ -846,113 +742,14 @@ const HospitalBloodConnect = () => {
         </Card>
       </div>
 
-      {/* User Details Dialog */}
-      <Dialog open={showUserDetailsDialog} onOpenChange={setShowUserDetailsDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Donor Details
-            </DialogTitle>
-            <DialogDescription>
-              Information about the donor who accepted your blood request
-            </DialogDescription>
-          </DialogHeader>
-          {selectedAcceptedRequest?.accepted_user ? (
-            <div className="mt-4 space-y-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 pb-4 border-b">
-                      <div className="p-3 bg-blue-100 rounded-full">
-                        <User className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {selectedAcceptedRequest.accepted_user.first_name || ''} {selectedAcceptedRequest.accepted_user.last_name || ''}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">Blood Donor</p>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {selectedAcceptedRequest.accepted_user.phone && (
-                        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                          <Phone className="h-5 w-5 text-blue-600" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Phone</p>
-                            <a 
-                              href={`tel:${selectedAcceptedRequest.accepted_user.phone}`}
-                              className="text-sm font-medium hover:text-blue-600"
-                            >
-                              {selectedAcceptedRequest.accepted_user.phone}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedAcceptedRequest.accepted_user.email && (
-                        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                          <Mail className="h-5 w-5 text-blue-600" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Email</p>
-                            <a 
-                              href={`mailto:${selectedAcceptedRequest.accepted_user.email}`}
-                              className="text-sm font-medium hover:text-blue-600 break-all"
-                            >
-                              {selectedAcceptedRequest.accepted_user.email}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {selectedAcceptedRequest.user_response && (
-                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-900 mb-2">Donor's Message:</p>
-                        <p className="text-sm text-blue-800 italic">"{selectedAcceptedRequest.user_response}"</p>
-                      </div>
-                    )}
-
-                    {selectedAcceptedRequest.accepted_at && (
-                      <div className="text-xs text-muted-foreground pt-2 border-t">
-                        Accepted on: {new Date(selectedAcceptedRequest.accepted_at).toLocaleString()}
-                      </div>
-                    )}
-
-                    <div className="flex gap-2 pt-4">
-                      <Button
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={() => {
-                          setShowUserDetailsDialog(false);
-                          navigate(`/dashboard/hospital/bloodconnect/chat?hospitalRequestId=${selectedAcceptedRequest.id}&userId=${selectedAcceptedRequest.accepted_by}`);
-                        }}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Start Chat
-                      </Button>
-                      {selectedAcceptedRequest.accepted_user.phone && (
-                        <Button
-                          variant="outline"
-                          onClick={() => window.open(`tel:${selectedAcceptedRequest.accepted_user?.phone}`, '_blank')}
-                        >
-                          <Phone className="h-4 w-4 mr-2" />
-                          Call
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : (
-            <div className="mt-4 text-center py-8">
-              <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">Loading donor details...</p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <UserDetailsDialog
+        open={showUserDetailsDialog}
+        onOpenChange={setShowUserDetailsDialog}
+        request={selectedAcceptedRequest}
+        onChatClick={(requestId, userId) => {
+          navigate(`/dashboard/hospital/bloodconnect/chat?hospitalRequestId=${requestId}&userId=${userId}`);
+        }}
+      />
     </div>
   );
 };

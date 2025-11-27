@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Flag, MapPin, Clock, History } from "lucide-react";
 import { useAnonymousReports } from "@/hooks/useAnonymousReports";
-import AnonymousReportsHistory from "./AnonymousReportsHistory";
-import ResponderReportsManagement from "./ResponderReportsManagement";
+import { AnonymousReportsHistory } from "@/components/user/components/reports";
+import { ResponderReportsManagement } from "@/components/responder/components";
 
 export const AnonymousReportsManager = () => {
   const { reports, loading, updateReportStatus } = useAnonymousReports();

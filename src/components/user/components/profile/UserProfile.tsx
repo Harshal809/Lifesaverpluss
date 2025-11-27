@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import EmergencyContacts from "@/components/EmergencyContacts";
+import { EmergencyContacts } from "../contacts";
 import { Users, ChevronDown, ChevronUp } from "lucide-react";
 
 interface UserProfileProps {

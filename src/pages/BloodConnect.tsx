@@ -5,11 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import BloodDonorRegistration from '@/components/BloodDonorRegistration';
-import BloodRequestForm from '@/components/BloodRequestForm';
-import BloodRequestList from '@/components/BloodRequestList';
-import BloodDonorList from '@/components/BloodDonorList';
-import HospitalList from '@/components/HospitalList';
+import { BloodRequestForm, BloodRequestList, BloodDonorList, HospitalList, BloodDonorRegistration } from '@/components/user/bloodconnect';
 import { 
   Heart, 
   Droplet, 

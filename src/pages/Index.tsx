@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Users, MapPin, Bell, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import UserProfile from "@/components/UserProfile";
+import { UserProfile } from "@/components/user/components/profile";
 import DummyLogin from "@/components/r/dummylogin";
 import InstallButton from "@/components/InstallButton";
 const Index = () => {

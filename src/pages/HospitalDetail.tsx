@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Building2, MapPin, Phone, Mail, Droplet, ArrowLeft, MessageCircle, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import HospitalRequestForm from '@/components/HospitalRequestForm';
+import { HospitalRequestForm } from '@/components/hospital/bloodconnect';
 
 interface HospitalInventory {
   blood_group: string;

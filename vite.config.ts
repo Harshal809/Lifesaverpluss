@@ -15,8 +15,11 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'placeholder.svg'],
+      // Disable service worker in dev to avoid Workbox routing issues and blank pages.
+      // PWA will still work in production build (npm run build && npm run preview).
       devOptions: {
-        enabled: true,
+        enabled: false,
+        type: 'module',
       },
       manifest: {
         name: 'EmergencyConnect',
@@ -50,6 +53,11 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -66,7 +74,8 @@ export default defineConfig(({ mode }) => ({
             }
           }
         ]
-      }
+      },
+      injectManifest: false
     }),
     mode === 'development' &&
     componentTagger(),
