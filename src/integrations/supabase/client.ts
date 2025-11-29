@@ -8,7 +8,7 @@ let SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   console.warn('Missing Supabase env vars. Falling back to embedded dev keys.');
   SUPABASE_URL = 'https://pvmtgkbrvaxcteedpmju.supabase.co';
-  SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_7tFy8U-y_JkBWvrFkOnIfw_vnNVvCuT'
+  SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6c2t0em1mZGdvZ2t0ZGJvYmNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MjIyMDksImV4cCI6MjA3OTk5ODIwOX0.WDQC9pRCa39qL9kjcWSNLtL9upaJbwXg-6DctizMAWM'
 }
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
